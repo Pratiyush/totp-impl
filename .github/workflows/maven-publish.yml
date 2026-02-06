@@ -48,11 +48,16 @@ jobs:
             </servers>
           </settings>" > ${{ github.workspace }}/.m2/settings.xml
 
-      # 4️⃣ Import GPG key in batch mode
+      # 4️⃣ Import GPG private key for CI
       - name: Import GPG private key
         run: |
+          # Import key
           echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
+          # List secret keys to verify
           gpg --list-secret-keys --keyid-format LONG
+          # Enable loopback pinentry
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+          chmod 600 ~/.gnupg/gpg.conf
 
       # 5️⃣ Calculate next version
       - name: Calculate version
@@ -81,7 +86,7 @@ jobs:
           git tag v${{ steps.version.outputs.version }}
           git push origin v${{ steps.version.outputs.version }}
 
-      # 8️⃣ Build, sign, and deploy Maven artifact
+      # 8️⃣ Build, sign, and deploy
       - name: Build and deploy
         run: |
           mvn clean deploy -P release \
@@ -89,9 +94,8 @@ jobs:
             -Dgpg.keyname=CAADD90371C77C72 \
             -Dgpg.useagent=false \
             -DskipTests \
-            -Dgpg.passphrase="${MAVEN_GPG_PASSPHRASE}" \
             --batch-mode \
-            -Dgpg.pinentry-mode=loopback
+            -Dgpg.passphrase="${MAVEN_GPG_PASSPHRASE}"
 
       # 9️⃣ Create GitHub Release
       - name: Create GitHub Release

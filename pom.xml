@@ -268,7 +268,7 @@
             </build>
         </profile>
 
-        <!-- Profile for GPG signing during release -->
+        <!-- Profile for GPG signing during release profile-->
         <profile>
             <id>release</id>
             <build>

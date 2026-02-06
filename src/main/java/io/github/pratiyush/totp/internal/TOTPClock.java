@@ -1,4 +1,4 @@
-package com.pratiyush.totp.internal;
+package io.github.pratiyush.totp.internal;
 
 import java.time.Clock;
 import java.time.Instant;

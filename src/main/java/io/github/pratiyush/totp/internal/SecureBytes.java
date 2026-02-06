@@ -1,4 +1,4 @@
-package com.pratiyush.totp.internal;
+package io.github.pratiyush.totp.internal;
 
 import java.util.Arrays;
 

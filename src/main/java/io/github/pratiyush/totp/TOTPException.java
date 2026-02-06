@@ -1,4 +1,4 @@
-package com.pratiyush.totp;
+package io.github.pratiyush.totp;
 
 /**
  * Exception thrown for TOTP-related errors.

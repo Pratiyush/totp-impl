@@ -1,4 +1,4 @@
-package com.pratiyush.totp;
+package io.github.pratiyush.totp;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

@@ -232,7 +232,7 @@
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.pratiyush.totp</Automatic-Module-Name>
+                            <Automatic-Module-Name>io.github.pratiyush.totp</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -268,7 +268,7 @@
             </build>
         </profile>
 
-        <!-- Profile for GPG signing during release profile-->
+        <!-- Profile for GPG signing during release -->
         <profile>
             <id>release</id>
             <build>
@@ -286,6 +286,13 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <keyname>CAADD90371C77C72</keyname>
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>

@@ -1,6 +1,6 @@
-package com.pratiyush.totp.internal;
+package io.github.pratiyush.totp.internal;
 
-import com.pratiyush.totp.TOTPException;
+import io.github.pratiyush.totp.TOTPException;
 
 import java.util.Arrays;
 

@@ -1,4 +1,4 @@
-package com.pratiyush.totp;
+package io.github.pratiyush.totp;
 
 /**
  * Supported HMAC algorithms for TOTP generation.

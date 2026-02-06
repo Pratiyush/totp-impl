@@ -1,7 +1,7 @@
-package com.pratiyush.totp.internal;
+package io.github.pratiyush.totp.internal;
 
-import com.pratiyush.totp.TOTPConfig;
-import com.pratiyush.totp.TOTPException;
+import io.github.pratiyush.totp.TOTPConfig;
+import io.github.pratiyush.totp.TOTPException;
 
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;

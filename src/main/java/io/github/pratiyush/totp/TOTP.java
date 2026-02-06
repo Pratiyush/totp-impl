@@ -1,9 +1,9 @@
-package com.pratiyush.totp;
+package io.github.pratiyush.totp;
 
-import com.pratiyush.totp.internal.Base32Codec;
-import com.pratiyush.totp.internal.SecureBytes;
-import com.pratiyush.totp.internal.TOTPClock;
-import com.pratiyush.totp.internal.TOTPEngine;
+import io.github.pratiyush.totp.internal.Base32Codec;
+import io.github.pratiyush.totp.internal.SecureBytes;
+import io.github.pratiyush.totp.internal.TOTPClock;
+import io.github.pratiyush.totp.internal.TOTPEngine;
 
 import org.jspecify.annotations.Nullable;
 

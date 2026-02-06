@@ -32,54 +32,58 @@ Add to your `pom.xml`:
 ### Basic Usage
 
 ```java
-import com.pratiyush.totp.*;
+import io.github.pratiyush.totp.Algorithm;
+import io.github.pratiyush.totp.SecretGenerator;
+import io.github.pratiyush.totp.TOTP;
 
 // Generate a secret for a new user
 String secret = SecretGenerator.generate(Algorithm.SHA256);
 
-// Create TOTP instance
-TOTP totp = TOTP.defaultInstance();
+        // Create TOTP instance
+        TOTP totp = TOTP.defaultInstance();
 
-// Generate a code (for testing/admin purposes)
-String code = totp.generate(secret);
+        // Generate a code (for testing/admin purposes)
+        String code = totp.generate(secret);
 
-// Verify a code from user input
-boolean valid = totp.verify(secret, userProvidedCode);
+        // Verify a code from user input
+        boolean valid = totp.verify(secret, userProvidedCode);
 ```
 
 ### With Replay Protection
 
 ```java
-import com.pratiyush.totp.*;
+import io.github.pratiyush.totp.TOTP;
+
 import java.time.Duration;
 
 // Create TOTP with replay attack prevention
 TOTP totp = TOTP.builder()
-    .withReplayProtection(Duration.ofMinutes(2))
-    .build();
+        .withReplayProtection(Duration.ofMinutes(2))
+        .build();
 
-// Verify with user ID for per-user tracking
-boolean valid = totp.verify(secret, code, userId);
+        // Verify with user ID for per-user tracking
+        boolean valid = totp.verify(secret, code, userId);
 ```
 
 ### Generate QR Code
 
 ```java
-import com.pratiyush.totp.*;
+import io.github.pratiyush.totp.QRCodeGenerator;
+
 import java.nio.file.Path;
 
 // Generate QR code for authenticator apps
 QRCodeGenerator.saveToFile(
-    secret, 
-    "user@example.com", 
-    "MyApp", 
-    Path.of("qr.png"), 
+        secret, 
+    "user@example.com",
+            "MyApp",
+        Path.of("qr.png"), 
     250
-);
+            );
 
 // Or get as Base64 for embedding in HTML
 String base64 = QRCodeGenerator.generateBase64(
-    secret, "user@example.com", "MyApp", 250);
+        secret, "user@example.com", "MyApp", 250);
 String html = "<img src='data:image/png;base64," + base64 + "'/>";
 ```
 

@@ -20,4 +20,4 @@
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc6238">RFC 6238</a>
  */
 @org.jspecify.annotations.NullMarked
-package com.pratiyush.totp;
+package io.github.pratiyush.totp;

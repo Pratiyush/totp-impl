@@ -1,7 +1,7 @@
-package com.pratiyush.totp;
+package io.github.pratiyush.totp;
 
-import com.pratiyush.totp.internal.SecureBytes;
-import com.pratiyush.totp.internal.TOTPEngine;
+import io.github.pratiyush.totp.internal.SecureBytes;
+import io.github.pratiyush.totp.internal.TOTPEngine;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.RepeatedTest;

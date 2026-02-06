@@ -1,4 +1,4 @@
-package com.pratiyush.totp;
+package io.github.pratiyush.totp;
 
 /**
  * Interface for preventing TOTP code replay attacks.

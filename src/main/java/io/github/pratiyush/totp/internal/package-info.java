@@ -9,4 +9,4 @@
  * This package uses jSpecify annotations for null safety.
  */
 @org.jspecify.annotations.NullMarked
-package com.pratiyush.totp.internal;
+package io.github.pratiyush.totp.internal;

@@ -1,4 +1,4 @@
-package com.pratiyush.totp;
+package io.github.pratiyush.totp;
 
 import java.time.Duration;
 import java.util.Objects;

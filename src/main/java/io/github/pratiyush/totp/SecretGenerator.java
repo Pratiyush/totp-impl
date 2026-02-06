@@ -1,6 +1,6 @@
-package com.pratiyush.totp;
+package io.github.pratiyush.totp;
 
-import com.pratiyush.totp.internal.Base32Codec;
+import io.github.pratiyush.totp.internal.Base32Codec;
 
 import org.jspecify.annotations.Nullable;
 

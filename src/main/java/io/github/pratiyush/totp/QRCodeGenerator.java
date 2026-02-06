@@ -1,4 +1,4 @@
-package com.pratiyush.totp;
+package io.github.pratiyush.totp;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;

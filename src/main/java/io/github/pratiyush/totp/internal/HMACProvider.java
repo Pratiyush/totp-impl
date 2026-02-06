@@ -1,7 +1,7 @@
-package com.pratiyush.totp.internal;
+package io.github.pratiyush.totp.internal;
 
-import com.pratiyush.totp.Algorithm;
-import com.pratiyush.totp.TOTPException;
+import io.github.pratiyush.totp.Algorithm;
+import io.github.pratiyush.totp.TOTPException;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

@@ -1,4 +1,3 @@
-# .github/workflows/maven-release-auto.yml
 name: Maven Auto Release
 
 on:
@@ -15,7 +14,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     env:
-      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
       SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
       SONATYPE_TOKEN: ${{ secrets.SONATYPE_TOKEN }}
 
@@ -50,11 +49,14 @@ jobs:
             </servers>
           </settings>" > ${{ github.workspace }}/.m2/settings.xml
 
-      # 4️⃣ Import GPG key
+      # 4️⃣ Import and trust GPG key
       - name: Import GPG key
         run: |
           echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
-          gpg --list-keys
+          KEY_ID=$(gpg --list-keys --with-colons | awk -F: '/pub/ {print $5}')
+          # Automatically trust the key for batch signing
+          echo -e "5\ny\n" | gpg --command-fd 0 --edit-key $KEY_ID trust
+          gpg --list-secret-keys --keyid-format LONG
 
       # 5️⃣ Calculate next version
       - name: Calculate version
@@ -81,7 +83,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-      # 7️⃣ Create and push Git tag using GITHUB_TOKEN
+      # 7️⃣ Create and push Git tag
       - name: Create Git tag
         run: |
           git tag v${{ steps.version.outputs.version }}
@@ -92,7 +94,7 @@ jobs:
         run: |
           mvn clean deploy -P release \
             -Drevision=${{ steps.version.outputs.version }} \
-            -Dgpg.passphrase="${GPG_PASSPHRASE}" \
+            -Dgpg.keyname=CAADD90371C77C72 \
             -DskipTests
 
       # 9️⃣ Create GitHub release

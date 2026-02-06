@@ -2,6 +2,8 @@ package com.pratiyush.totp.internal;
 
 import com.pratiyush.totp.TOTPException;
 
+import java.util.Arrays;
+
 /**
  * RFC 4648 compliant Base32 encoder/decoder with zero external dependencies.
  * 
@@ -35,9 +37,7 @@ public final class Base32Codec {
 
     static {
         // Initialize all entries to -1 (invalid)
-        for (int i = 0; i < DECODE_TABLE.length; i++) {
-            DECODE_TABLE[i] = -1;
-        }
+        Arrays.fill(DECODE_TABLE, -1);
 
         // Map uppercase letters A-Z to values 0-25
         for (int i = 0; i < 26; i++) {

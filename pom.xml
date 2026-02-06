@@ -4,23 +4,24 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.pratiyush</groupId>
+    <groupId>io.github.pratiyush</groupId>
     <artifactId>totp-lib</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>Production-Ready TOTP Library</name>
+    <name>Java TOTP Implementation</name>
     <description>
         Enterprise-grade, RFC 6238 compliant Time-based One-Time Password (TOTP) library.
         Features constant-time verification, replay attack prevention, and zero required dependencies.
     </description>
-    <url>https://github.com/pratiyush-kumar-singh/totp-lib</url>
+    <url>https://github.com/Pratiyush/totp-impl</url>
     <inceptionYear>2026</inceptionYear>
 
     <developers>
         <developer>
             <id>pratiyush</id>
             <name>Pratiyush Kumar Singh</name>
+            <email>pratiyush1@gmail.com</email>
             <roles>
                 <role>architect</role>
                 <role>developer</role>
@@ -30,16 +31,34 @@
 
     <licenses>
         <license>
-            <name>MIT License</name>
-            <url>https://opensource.org/licenses/MIT</url>
-            <distribution>repo</distribution>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
         </license>
     </licenses>
 
+    <scm>
+        <connection>scm:git:git://github.com/Pratiyush/totp-impl.git</connection>
+        <developerConnection>scm:git:ssh://github.com:Pratiyush/totp-impl.git</developerConnection>
+        <url>https://github.com/Pratiyush/totp-impl</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         
         <!-- Dependency versions -->
         <junit.version>5.10.2</junit.version>
@@ -125,7 +144,7 @@
             </plugin>
 
             <!-- JaCoCo for code coverage -->
-            <plugin>
+           <!-- <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco.version}</version>
@@ -165,19 +184,17 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
 
             <!-- Source JAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
+                        <goals><goal>jar</goal></goals>
                     </execution>
                 </executions>
             </plugin>
@@ -197,7 +214,21 @@
                 </executions>
                 <configuration>
                     <doclint>all,-missing</doclint>
+                    <failOnError>true</failOnError>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals><goal>sign</goal></goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- JAR plugin -->

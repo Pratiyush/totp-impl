@@ -29,8 +29,8 @@ class TOTPTest {
         @Test
         @DisplayName("Should generate 6-digit code with default config")
         void shouldGenerate6DigitCode() throws TOTPException {
-            TOTP totp = TOTP.defaultInstance();
-            String code = totp.generate(TEST_SECRET);
+            final TOTP totp = TOTP.defaultInstance();
+            final String code = totp.generate(TEST_SECRET);
 
             assertThat(code)
                     .hasSize(6)
@@ -40,11 +40,11 @@ class TOTPTest {
         @Test
         @DisplayName("Should generate 8-digit code when configured")
         void shouldGenerate8DigitCode() throws TOTPException {
-            TOTP totp = TOTP.builder()
+            final TOTP totp = TOTP.builder()
                     .config(TOTPConfig.builder().digits(8).build())
                     .build();
 
-            String code = totp.generate(TEST_SECRET);
+            final String code = totp.generate(TEST_SECRET);
 
             assertThat(code)
                     .hasSize(8)
@@ -56,10 +56,9 @@ class TOTPTest {
         void shouldPadWithLeadingZeros() throws TOTPException {
             // Use a fixed time that generates a code with leading zeros
             // Counter = 0 with this secret gives a code starting with 0
-            TOTPClock fixedClock = TOTPClock.fixed(Instant.ofEpochSecond(0));
-            TOTP totp = TOTP.builder().clock(fixedClock).build();
-
-            String code = totp.generate(TEST_SECRET);
+            final TOTPClock fixedClock = TOTPClock.fixed(Instant.ofEpochSecond(0));
+            final TOTP totp = TOTP.builder().clock(fixedClock).build();
+            final String code = totp.generate(TEST_SECRET);
 
             assertThat(code).hasSize(6);
         }

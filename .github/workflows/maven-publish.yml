@@ -48,18 +48,30 @@ jobs:
             </servers>
           </settings>" > ${{ github.workspace }}/.m2/settings.xml
 
-      # 4️⃣ Import GPG private key for CI
+      # 4️⃣ Import GPG private key
       - name: Import GPG private key
         run: |
-          # Import key
           echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
-          # List secret keys to verify
           gpg --list-secret-keys --keyid-format LONG
-          # Enable loopback pinentry
+
+      # 5️⃣ Configure GPG for loopback pinentry
+      - name: Configure GPG for CI
+        run: |
+          mkdir -p ~/.gnupg
           echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
           chmod 600 ~/.gnupg/gpg.conf
 
-      # 5️⃣ Calculate next version
+      # 6️⃣ Debug imported keys
+      - name: Debug GPG keys
+        run: |
+          echo "Secret keys:"
+          gpg --list-secret-keys --keyid-format LONG
+          echo "Public keys:"
+          gpg --list-keys --keyid-format LONG
+          echo "Detected key ID:"
+          gpg --list-secret-keys --with-colons | grep '^sec' | cut -d: -f5
+
+      # 7️⃣ Calculate next version
       - name: Calculate version
         id: version
         run: |
@@ -74,30 +86,29 @@ jobs:
           fi
           echo "version=$NEXT_VERSION" >> $GITHUB_OUTPUT
 
-      # 6️⃣ Configure Git
+      # 8️⃣ Configure Git
       - name: Configure Git
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-      # 7️⃣ Create Git tag
+      # 9️⃣ Create Git tag
       - name: Create Git tag
         run: |
           git tag v${{ steps.version.outputs.version }}
           git push origin v${{ steps.version.outputs.version }}
 
-      # 8️⃣ Build, sign, and deploy
-      - name: Build and deploy
+      # 🔟 Build, sign, and deploy Maven artifact (debug)
+      - name: Build and deploy (debug)
         run: |
           mvn clean deploy -P release \
             -Drevision=${{ steps.version.outputs.version }} \
             -Dgpg.keyname=CAADD90371C77C72 \
             -Dgpg.useagent=false \
             -DskipTests \
-            --batch-mode \
-            -Dgpg.passphrase="${MAVEN_GPG_PASSPHRASE}"
+            --batch-mode -X
 
-      # 9️⃣ Create GitHub Release
+      # 1️⃣1️⃣ Create GitHub Release
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                              https://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+    <!-- ===================================================== -->
+    <!--  Servers (Credentials injected via ENV variables)    -->
+    <!-- ===================================================== -->
+    <servers>
+        <!-- Maven Central / Sonatype OSSRH -->
+        <server>
+            <id>central</id>
+            <username>${env.SONATYPE_USERNAME}</username>
+            <password>${env.SONATYPE_TOKEN}</password>
+        </server>
+
+        <!-- GPG Passphrase -->
+        <server>
+            <id>gpg.passphrase</id>
+            <passphrase>${env.MAVEN_GPG_PASSPHRASE}</passphrase>
+        </server>
+    </servers>
+
+    <!-- ===================================================== -->
+    <!--  Profiles                                             -->
+    <!-- ===================================================== -->
+    <profiles>
+        <profile>
+            <id>release</id>
+
+            <properties>
+                <!-- GPG configuration -->
+                <gpg.executable>gpg</gpg.executable>
+                <gpg.useagent>false</gpg.useagent>
+                <gpg.passphrase>${env.MAVEN_GPG_PASSPHRASE}</gpg.passphrase>
+                <gpg.keyname>CAADD90371C77C72</gpg.keyname>
+
+                <!-- Central-friendly defaults -->
+                <maven.deploy.skip>false</maven.deploy.skip>
+                <skipTests>true</skipTests>
+            </properties>
+        </profile>
+    </profiles>
+
+    <!-- ===================================================== -->
+    <!--  Activate release profile by default in CI            -->
+    <!-- ===================================================== -->
+    <activeProfiles>
+        <activeProfile>release</activeProfile>
+    </activeProfiles>
+
+</settings>

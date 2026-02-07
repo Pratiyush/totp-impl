@@ -31,7 +31,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-          server-id: ossrh
+          server-id: central
           settings-path: ${{ github.workspace }}/.m2
 
       # 3️⃣ Configure Maven settings
@@ -41,7 +41,7 @@ jobs:
           echo "<settings>
             <servers>
               <server>
-                <id>ossrh</id>
+                <id>central</id>
                 <username>${SONATYPE_USERNAME}</username>
                 <password>${SONATYPE_TOKEN}</password>
               </server>
@@ -51,17 +51,12 @@ jobs:
       # 4️⃣ Import GPG private key
       - name: Import GPG private key
         run: |
-          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
-          gpg --list-secret-keys --keyid-format LONG
-
-      # 5️⃣ Configure GPG for loopback pinentry
-      - name: Configure GPG for CI
-        run: |
           mkdir -p ~/.gnupg
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
           echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
           chmod 600 ~/.gnupg/gpg.conf
 
-      # 6️⃣ Debug imported keys
+      # 5️⃣ Debug GPG keys
       - name: Debug GPG keys
         run: |
           echo "Secret keys:"
@@ -71,44 +66,46 @@ jobs:
           echo "Detected key ID:"
           gpg --list-secret-keys --with-colons | grep '^sec' | cut -d: -f5
 
-      # 7️⃣ Calculate next version
+      # 6️⃣ Calculate next version
       - name: Calculate version
         id: version
         run: |
           LATEST_TAG=$(git describe --tags --abbrev=0 || echo "v0.0.0")
           VERSION=$(echo $LATEST_TAG | sed 's/^v//')
           if [ "$VERSION" = "0.0.0" ]; then
-            NEXT_VERSION="1.0.0"
+            NEXT_VERSION="1.0.0-SNAPSHOT"
           else
             IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
             PATCH=$((PATCH+1))
-            NEXT_VERSION="$MAJOR.$MINOR.$PATCH"
+            NEXT_VERSION="$MAJOR.$MINOR.$PATCH-SNAPSHOT"
           fi
+          echo "Next version: $NEXT_VERSION"
           echo "version=$NEXT_VERSION" >> $GITHUB_OUTPUT
 
-      # 8️⃣ Configure Git
+      # 7️⃣ Configure Git
       - name: Configure Git
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-      # 9️⃣ Create Git tag
+      # 8️⃣ Create Git tag for snapshot
       - name: Create Git tag
         run: |
           git tag v${{ steps.version.outputs.version }}
           git push origin v${{ steps.version.outputs.version }}
 
-      # 🔟 Build, sign, and deploy Maven artifact (debug)
-      - name: Build and deploy (debug)
+      # 9️⃣ Build, sign, and deploy Maven artifact
+      - name: Build and deploy
+        env:
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           mvn clean deploy -P release \
             -Drevision=${{ steps.version.outputs.version }} \
-            -Dgpg.keyname=CAADD90371C77C72 \
             -Dgpg.useagent=false \
             -DskipTests \
             --batch-mode -X
 
-      # 1️⃣1️⃣ Create GitHub Release
+      # 🔟 Create GitHub Release
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:

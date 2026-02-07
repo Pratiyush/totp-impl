@@ -46,14 +46,14 @@
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
         </snapshotRepository>
         <repository>
-            <id>ossrh</id>
+            <id>central</id>
+            <name>Central Repository</name>
             <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
-
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -286,13 +286,6 @@
                                 </goals>
                             </execution>
                         </executions>
-                        <configuration>
-                            <keyname>CAADD90371C77C72</keyname>
-                            <gpgArguments>
-                                <arg>--pinentry-mode</arg>
-                                <arg>loopback</arg>
-                            </gpgArguments>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>

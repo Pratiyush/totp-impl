@@ -110,7 +110,7 @@ totp.verify(secret, code);
 If you discover a security vulnerability, please:
 
 1. **Do not** open a public issue
-2. Email security details to: security@pratiyush.com
+2. Email security details to: pratiyush1@gmail.com
 3. Include:
    - Description of the vulnerability
    - Steps to reproduce

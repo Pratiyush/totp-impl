@@ -61,6 +61,7 @@ jobs:
       - name: Import GPG private key
         run: |
           mkdir -p ~/.gnupg
+          chmod 700 ~/.gnupg
           echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
           echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
           chmod 600 ~/.gnupg/gpg.conf
@@ -100,7 +101,7 @@ jobs:
       # 9️⃣ Build, sign, and deploy Maven artifact
       - name: Build and deploy
         env:
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           mvn clean deploy -P release \
             -Drevision=${{ steps.version.outputs.version }} \

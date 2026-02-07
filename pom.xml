@@ -197,6 +197,11 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
                         <version>3.2.4</version>
+                        <configuration>
+                            <useAgent>false</useAgent>
+                            <pinentryMode>loopback</pinentryMode>
+                            <keyname>CAADD90371C77C72</keyname>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>

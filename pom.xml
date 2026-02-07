@@ -213,9 +213,17 @@
                             </execution>
                         </executions>
                         <configuration>
+                            <!-- Force non-interactive signing -->
                             <useAgent>false</useAgent>
+                            <!-- optional: restrict to your key (only needed if you have multiple keys) -->
                             <keyname>CAADD90371C77C72</keyname>
+                            <!-- passphrase from env (GitHub Actions secret mapped to MAVEN_GPG_PASSPHRASE) -->
                             <passphrase>${env.MAVEN_GPG_PASSPHRASE}</passphrase>
+                            <!-- force loopback pinentry mode -->
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
                         </configuration>
                     </plugin>
                 </plugins>

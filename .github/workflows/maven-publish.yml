@@ -48,82 +48,95 @@ jobs:
         run: |
           mkdir -p ${{ github.workspace }}/.m2
           cat <<EOF > ${{ github.workspace }}/.m2/settings.xml
-          <settings>
-            <servers>
-              <server>
-                <id>central</id>
-                <username>${SONATYPE_USERNAME}</username>
-                <password>${SONATYPE_TOKEN}</password>
-              </server>
-            </servers>
-          </settings>
-          EOF
+  <settings>
+  <servers>
+  <server>
+  <id>central</id>
+  <username>${SONATYPE_USERNAME}</username>
+  <password>${SONATYPE_TOKEN}</password>
+  </server>
+  </servers>
+  </settings>
+  EOF
 
-      # 5️⃣ Import GPG private key
-      - name: Import GPG private key
-        run: |
-          mkdir -p ~/.gnupg
-          chmod 700 ~/.gnupg
-          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
-          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
-          chmod 600 ~/.gnupg/gpg.conf
+# 5️⃣ Import GPG private key
+- name: Import GPG private key
+  run: |
+    mkdir -p ~/.gnupg
+    chmod 700 ~/.gnupg
+    echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
+    echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+    chmod 600 ~/.gnupg/gpg.conf
 
-      # 6️⃣ Debug GPG keys
-      - name: Debug GPG keys
-        run: |
-          echo "Secret keys:"
-          gpg --list-secret-keys --keyid-format LONG
-          echo "Public keys:"
-          gpg --list-keys --keyid-format LONG
-          echo "Detected key ID:"
-          gpg --list-secret-keys --with-colons | grep '^sec' | cut -d: -f5
+# 6️⃣ Debug GPG keys
+- name: Debug GPG keys
+  run: |
+    echo "Secret keys:"
+    gpg --list-secret-keys --keyid-format LONG
+    echo "Public keys:"
+    gpg --list-keys --keyid-format LONG
+    echo "Detected key ID:"
+    gpg --list-secret-keys --with-colons | grep '^sec' | cut -d: -f5
 
-      # 7️⃣ Calculate next version
-      - name: Calculate version
-        id: version
-        run: |
-          LATEST_TAG=$(git describe --tags --abbrev=0 || echo "v0.0.0")
-          VERSION=$(echo $LATEST_TAG | sed 's/^v//')
-          if [ "$VERSION" = "0.0.0" ]; then
-            NEXT_VERSION="1.0.0-SNAPSHOT"
-          else
-            IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
-            PATCH=$((PATCH+1))
-            NEXT_VERSION="$MAJOR.$MINOR.$PATCH-SNAPSHOT"
-          fi
-          echo "Next version: $NEXT_VERSION"
-          echo "version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+# 6️⃣a Quick GPG signing test
+- name: Quick GPG signing test
+  env:
+    MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+  run: |
+    echo "test" > /tmp/testfile.txt
+    printf '%s' "${MAVEN_GPG_PASSPHRASE}" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 \
+      --local-user CAADD90371C77C72 --output /tmp/testfile.sig --detach-sign /tmp/testfile.txt
+    echo "signature created:"
+    ls -l /tmp/testfile.sig
+    gpg --verify /tmp/testfile.sig /tmp/testfile.txt || true
 
-      # 8️⃣ Configure Git
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+# 7️⃣ Calculate next version
+- name: Calculate version
+  id: version
+  run: |
+    LATEST_TAG=$(git describe --tags --abbrev=0 || echo "v0.0.0")
+    VERSION=$(echo $LATEST_TAG | sed 's/^v//')
+    if [ "$VERSION" = "0.0.0" ]; then
+      NEXT_VERSION="1.0.0-SNAPSHOT"
+    else
+      IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+      PATCH=$((PATCH+1))
+      NEXT_VERSION="$MAJOR.$MINOR.$PATCH-SNAPSHOT"
+    fi
+    echo "Next version: $NEXT_VERSION"
+    echo "version=$NEXT_VERSION" >> $GITHUB_OUTPUT
 
-      # 9️⃣ Build, sign, and deploy Maven artifact
-      - name: Build and deploy
-        env:
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-        run: |
-          mvn clean deploy -P release \
-            -Drevision=${{ steps.version.outputs.version }} \
-            -Dgpg.useagent=false \
-            -DskipTests \
-            --batch-mode -X
+# 8️⃣ Configure Git
+- name: Configure Git
+  run: |
+    git config user.name "github-actions"
+    git config user.email "github-actions@github.com"
 
-      # 🔟 Create Git tag and GitHub release (only for non-SNAPSHOT)
-      - name: Create Git tag and release
-        if: "!contains(steps.version.outputs.version, 'SNAPSHOT')"
-        run: |
-          git tag v${{ steps.version.outputs.version }}
-          git push origin v${{ steps.version.outputs.version }}
+# 9️⃣ Build, sign, and deploy Maven artifact
+- name: Build and deploy
+  env:
+    MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+  run: |
+    mvn clean deploy -P release \
+      -s ${{ github.workspace }}/.m2/settings.xml \
+      -Drevision=${{ steps.version.outputs.version }} \
+      -Dgpg.useagent=false \
+      -DskipTests \
+      --batch-mode -X
 
-      - name: Create GitHub Release
-        if: "!contains(steps.version.outputs.version, 'SNAPSHOT')"
-        uses: ncipollo/release-action@v1
-        with:
-          tag: v${{ steps.version.outputs.version }}
-          name: Release v${{ steps.version.outputs.version }}
-          body: "Automated release of version v${{ steps.version.outputs.version }}"
-          draft: false
-          prerelease: false
+# 🔟 Create Git tag and GitHub release (only for non-SNAPSHOT)
+- name: Create Git tag and release
+  if: "!contains(steps.version.outputs.version, 'SNAPSHOT')"
+  run: |
+    git tag v${{ steps.version.outputs.version }}
+    git push origin v${{ steps.version.outputs.version }}
+
+- name: Create GitHub Release
+  if: "!contains(steps.version.outputs.version, 'SNAPSHOT')"
+  uses: ncipollo/release-action@v1
+  with:
+    tag: v${{ steps.version.outputs.version }}
+    name: Release v${{ steps.version.outputs.version }}
+    body: "Automated release of version v${{ steps.version.outputs.version }}"
+    draft: false
+    prerelease: false

@@ -14,27 +14,23 @@ jobs:
   release:
     runs-on: ubuntu-latest
     env:
+      # keep this consistent with your repository secret name
       MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
       SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
       SONATYPE_TOKEN: ${{ secrets.SONATYPE_TOKEN }}
 
     steps:
-      # 1️⃣ Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      # 2️⃣ Set up Java 21
-      - name: Set up Java
+      - name: Set up Java 21
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 21
-          server-id: central
-          settings-path: ${{ github.workspace }}/.m2
 
-      # 3️⃣ Cache Maven dependencies
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
@@ -43,54 +39,57 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # 4️⃣ Configure Maven settings
       - name: Configure Maven settings
         run: |
           mkdir -p ${{ github.workspace }}/.m2
           cat <<EOF > ${{ github.workspace }}/.m2/settings.xml
-  <settings>
-  <servers>
-  <server>
-  <id>central</id>
-  <username>${SONATYPE_USERNAME}</username>
-  <password>${SONATYPE_TOKEN}</password>
-  </server>
-  </servers>
-  </settings>
-  EOF
+      <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+      https://maven.apache.org/xsd/settings-1.0.0.xsd">
+      <servers>
+      <server>
+      <id>central</id>
+      <username>${SONATYPE_USERNAME}</username>
+      <password>${SONATYPE_TOKEN}</password>
+      </server>
+      </servers>
+      </settings>
+      EOF
 
-# 5️⃣ Import GPG private key
-- name: Import GPG private key
+
+    - name: Import GPG private key
   run: |
     mkdir -p ~/.gnupg
     chmod 700 ~/.gnupg
     echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
+    # ensure loopback option exists (harmless if duplicated)
     echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
     chmod 600 ~/.gnupg/gpg.conf
 
-# 6️⃣ Debug GPG keys
 - name: Debug GPG keys
   run: |
     echo "Secret keys:"
-    gpg --list-secret-keys --keyid-format LONG
+    gpg --list-secret-keys --keyid-format LONG || true
     echo "Public keys:"
-    gpg --list-keys --keyid-format LONG
+    gpg --list-keys --keyid-format LONG || true
     echo "Detected key ID:"
-    gpg --list-secret-keys --with-colons | grep '^sec' | cut -d: -f5
+    gpg --list-secret-keys --with-colons | grep '^sec' | cut -d: -f5 || true
 
-# 6️⃣a Quick GPG signing test
 - name: Quick GPG signing test
   env:
     MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
   run: |
+    echo "testing gpg signing with loopback..."
     echo "test" > /tmp/testfile.txt
+    # use passphrase from env via stdin (passphrase-fd 0) and loopback
     printf '%s' "${MAVEN_GPG_PASSPHRASE}" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 \
       --local-user CAADD90371C77C72 --output /tmp/testfile.sig --detach-sign /tmp/testfile.txt
     echo "signature created:"
     ls -l /tmp/testfile.sig
+    # verify signature (non-fatal if verify fails, but it should pass)
     gpg --verify /tmp/testfile.sig /tmp/testfile.txt || true
 
-# 7️⃣ Calculate next version
 - name: Calculate version
   id: version
   run: |
@@ -103,35 +102,33 @@ jobs:
       PATCH=$((PATCH+1))
       NEXT_VERSION="$MAJOR.$MINOR.$PATCH-SNAPSHOT"
     fi
-    echo "Next version: $NEXT_VERSION"
     echo "version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+    echo "Next version: $NEXT_VERSION"
 
-# 8️⃣ Configure Git
 - name: Configure Git
   run: |
     git config user.name "github-actions"
     git config user.email "github-actions@github.com"
 
-# 9️⃣ Build, sign, and deploy Maven artifact
-- name: Build and deploy
+- name: Build, sign, and deploy
   env:
-    MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+    MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
   run: |
+    set -o pipefail
     mvn clean deploy -P release \
-      -s ${{ github.workspace }}/.m2/settings.xml \
+      -s "${{ github.workspace }}/.m2/settings.xml" \
       -Drevision=${{ steps.version.outputs.version }} \
       -Dgpg.useagent=false \
       -DskipTests \
       --batch-mode -X
 
-# 🔟 Create Git tag and GitHub release (only for non-SNAPSHOT)
-- name: Create Git tag and release
+- name: Create Git tag (only for release)
   if: "!contains(steps.version.outputs.version, 'SNAPSHOT')"
   run: |
     git tag v${{ steps.version.outputs.version }}
     git push origin v${{ steps.version.outputs.version }}
 
-- name: Create GitHub Release
+- name: Create GitHub Release (only for release)
   if: "!contains(steps.version.outputs.version, 'SNAPSHOT')"
   uses: ncipollo/release-action@v1
   with:

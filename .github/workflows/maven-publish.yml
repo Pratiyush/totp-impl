@@ -34,7 +34,16 @@ jobs:
           server-id: central
           settings-path: ${{ github.workspace }}/.m2
 
-      # 3️⃣ Configure Maven settings
+      # 3️⃣ Cache Maven dependencies
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # 4️⃣ Configure Maven settings
       - name: Configure Maven settings
         run: |
           mkdir -p ${{ github.workspace }}/.m2
@@ -48,7 +57,7 @@ jobs:
             </servers>
           </settings>" > ${{ github.workspace }}/.m2/settings.xml
 
-      # 4️⃣ Import GPG private key
+      # 5️⃣ Import GPG private key
       - name: Import GPG private key
         run: |
           mkdir -p ~/.gnupg
@@ -56,7 +65,7 @@ jobs:
           echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
           chmod 600 ~/.gnupg/gpg.conf
 
-      # 5️⃣ Debug GPG keys
+      # 6️⃣ Debug GPG keys
       - name: Debug GPG keys
         run: |
           echo "Secret keys:"
@@ -66,7 +75,7 @@ jobs:
           echo "Detected key ID:"
           gpg --list-secret-keys --with-colons | grep '^sec' | cut -d: -f5
 
-      # 6️⃣ Calculate next version
+      # 7️⃣ Calculate next version
       - name: Calculate version
         id: version
         run: |
@@ -82,22 +91,16 @@ jobs:
           echo "Next version: $NEXT_VERSION"
           echo "version=$NEXT_VERSION" >> $GITHUB_OUTPUT
 
-      # 7️⃣ Configure Git
+      # 8️⃣ Configure Git
       - name: Configure Git
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-      # 8️⃣ Create Git tag for snapshot
-      - name: Create Git tag
-        run: |
-          git tag v${{ steps.version.outputs.version }}
-          git push origin v${{ steps.version.outputs.version }}
-
       # 9️⃣ Build, sign, and deploy Maven artifact
       - name: Build and deploy
         env:
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
         run: |
           mvn clean deploy -P release \
             -Drevision=${{ steps.version.outputs.version }} \
@@ -105,8 +108,14 @@ jobs:
             -DskipTests \
             --batch-mode -X
 
-      # 🔟 Create GitHub Release
+      # 🔟 Create Git tag and GitHub release (only for non-SNAPSHOT)
+      - name: Create Git tag and release
+        if: "!contains(steps.version.outputs.version, 'SNAPSHOT')"
+        run: |
+          git tag v${{ steps.version.outputs.version }}
+          git push origin v${{ steps.version.outputs.version }}
       - name: Create GitHub Release
+        if: "!contains(steps.version.outputs.version, 'SNAPSHOT')"
         uses: ncipollo/release-action@v1
         with:
           tag: v${{ steps.version.outputs.version }}

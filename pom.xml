@@ -199,6 +199,7 @@
             </activation>
             <build>
                 <plugins>
+                    <!-- GPG Signing (configured for CI loopback pinentry) -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
@@ -213,13 +214,18 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <!-- Force non-interactive signing -->
+                            <!-- do not use gpg-agent interactive mode -->
                             <useAgent>false</useAgent>
-                            <!-- optional: restrict to your key (only needed if you have multiple keys) -->
-                            <keyname>CAADD90371C77C72</keyname>
-                            <!-- passphrase from env (GitHub Actions secret mapped to MAVEN_GPG_PASSPHRASE) -->
+
+                            <!-- specify your key id (optional if only one key available) -->
+                            <keyname>${env.GPG_KEY_ID}</keyname>
+
+                            <!-- Deprecated but commonly used in CI to provide passphrase non-interactively.
+                                 Maven will warn about deprecation; to eliminate the warning later consider
+                                 keyless signing (sigstore) or gpg-agent caching. -->
                             <passphrase>${env.MAVEN_GPG_PASSPHRASE}</passphrase>
-                            <!-- force loopback pinentry mode -->
+
+                            <!-- Force loopback pinentry so passphrase can be supplied by the plugin/CLI -->
                             <gpgArguments>
                                 <arg>--pinentry-mode</arg>
                                 <arg>loopback</arg>

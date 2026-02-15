@@ -25,7 +25,7 @@ Add to your `pom.xml`:
 <dependency>
     <groupId>com.pratiyush</groupId>
     <artifactId>totp-lib</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -264,3 +264,53 @@ MIT License - see [LICENSE](LICENSE) for details.
 - [Google Authenticator Key URI Format](https://github.com/google/google-authenticator/wiki/Key-Uri-Format)
 - [jSpecify](https://jspecify.dev/)
 
+---
+
+# Markdown Files Consolidation Summary
+
+## Overview
+
+The markdown files in the repository have been consolidated to reduce redundancy while maintaining all essential information. Below is the new structure:
+
+## Files and Their Purpose
+
+### Core Documentation (3 files)
+
+| File | Purpose |
+|------|---------|
+| **README.md** | Project overview, quick start, and release procedures |
+| **CONTRIBUTING.md** | Development guidelines, coding standards, and commit message format |
+| **CHANGELOG.md** | Version history and release notes |
+
+## Navigation Structure
+
+```
+README.md (Start here)
+├── CONTRIBUTING.md (Development & commits)
+├── CHANGELOG.md (Version history)
+```
+
+## Benefits of Consolidation
+
+✅ **Reduced Redundancy:** No duplicate information across files
+✅ **Single Source of Truth:** Main docs (README, CONTRIBUTING) are authoritative
+✅ **Better Organization:** Clear navigation and cross-references
+✅ **Easier Maintenance:** Updates in one place propagate to all references
+✅ **Cleaner Repository:** Only 3 focused files instead of scattered information
+
+## Quick Reference Guide
+
+### For developers starting out:
+1. Read **README.md** for overview
+2. Check **CONTRIBUTING.md** for coding standards and commit format
+
+### For maintainers preparing a release:
+1. See **README.md** "Release & Deployment" section
+2. Refer to **pom.xml** for Maven configuration
+
+### For understanding commits:
+1. See **CONTRIBUTING.md** "Commit Message Standard" section
+
+## Migration Complete ✓
+
+All markdown files have been consolidated with cross-references in place. No information has been lost—everything is now organized hierarchically with the main documentation files (README, CONTRIBUTING, CHANGELOG) as authoritative sources.

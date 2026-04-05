@@ -17,6 +17,8 @@
 Enterprise-grade, RFC 6238 compliant Time-based One-Time Password (TOTP) library for Java.
 Zero required dependencies. Constant-time verification. Replay attack prevention.
 
+[Maven Central](https://central.sonatype.com/artifact/io.github.pratiyush/totp-lib) | [MVN Repository](https://mvnrepository.com/artifact/io.github.pratiyush/totp-lib) | [Javadoc](https://pratiyush.github.io/totp-impl/) | [GitHub](https://github.com/Pratiyush/totp-impl)
+
 </div>
 
 ## Features
@@ -32,15 +34,29 @@ Zero required dependencies. Constant-time verification. Replay attack prevention
 
 ### Installation
 
-Add to your `pom.xml`:
+**Maven:**
 
 ```xml
 <dependency>
     <groupId>io.github.pratiyush</groupId>
     <artifactId>totp-lib</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.3</version>
 </dependency>
 ```
+
+**Gradle (Kotlin DSL):**
+
+```kotlin
+implementation("io.github.pratiyush:totp-lib:1.0.3")
+```
+
+**Gradle (Groovy):**
+
+```groovy
+implementation 'io.github.pratiyush:totp-lib:1.0.3'
+```
+
+> Latest version: [![Maven Central](https://img.shields.io/maven-central/v/io.github.pratiyush/totp-lib?style=flat-square)](https://central.sonatype.com/artifact/io.github.pratiyush/totp-lib)
 
 ### Basic Usage
 

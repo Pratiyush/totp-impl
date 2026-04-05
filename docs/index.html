@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>totp-lib - Java TOTP/2FA Library</title>
+    <meta name="description" content="Security-hardened Java TOTP library for two-factor authentication (2FA). RFC 6238 compliant with constant-time verification, replay attack prevention, and QR code generation.">
+    <meta name="keywords" content="TOTP, HOTP, Java, 2FA, two-factor authentication, OTP, one-time password, RFC 6238, security, authentication, Spring Boot, QR code">
+    <meta name="author" content="Pratiyush Kumar Singh">
+    <link rel="canonical" href="https://pratiyush.github.io/totp-impl/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="totp-lib - Security-hardened TOTP for Java">
+    <meta property="og:description" content="Enterprise-grade Java TOTP library for two-factor authentication. RFC 6238 compliant, zero dependencies, constant-time verification.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pratiyush.github.io/totp-impl/">
+
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --text: #e6edf3;
+            --text-muted: #8b949e;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --code-bg: #1c2128;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+        header { text-align: center; padding: 3rem 0 2rem; }
+        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .tagline { color: var(--text-muted); font-size: 1.2rem; margin-bottom: 1.5rem; }
+        .badges { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+        .badges img { height: 22px; }
+        .links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+        .links a {
+            color: var(--accent);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            transition: border-color 0.2s;
+        }
+        .links a:hover { border-color: var(--accent); }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .card h2 { font-size: 1.3rem; margin-bottom: 1rem; }
+        pre {
+            background: var(--code-bg);
+            border-radius: 6px;
+            padding: 1rem;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        code { font-family: 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace; }
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+        .feature { padding: 1rem; }
+        .feature h3 { font-size: 1rem; margin-bottom: 0.3rem; }
+        .feature p { color: var(--text-muted); font-size: 0.9rem; }
+        footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-size: 0.85rem; }
+        footer a { color: var(--accent); text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>totp-lib</h1>
+            <p class="tagline">Security-hardened TOTP for Java</p>
+            <div class="badges">
+                <a href="https://central.sonatype.com/artifact/io.github.pratiyush/totp-lib"><img src="https://img.shields.io/maven-central/v/io.github.pratiyush/totp-lib?style=flat-square" alt="Maven Central"></a>
+                <img src="https://img.shields.io/badge/Java-21+-blue.svg?style=flat-square" alt="Java 21+">
+                <img src="https://img.shields.io/badge/RFC-6238-green.svg?style=flat-square" alt="RFC 6238">
+                <a href="https://github.com/Pratiyush/totp-impl/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="MIT License"></a>
+            </div>
+            <div class="links">
+                <a href="https://github.com/Pratiyush/totp-impl">GitHub</a>
+                <a href="javadoc/">Javadoc</a>
+                <a href="https://central.sonatype.com/artifact/io.github.pratiyush/totp-lib">Maven Central</a>
+                <a href="https://mvnrepository.com/artifact/io.github.pratiyush/totp-lib">MVN Repository</a>
+            </div>
+        </header>
+
+        <div class="card">
+            <h2>Installation</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">Maven</p>
+            <pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;io.github.pratiyush&lt;/groupId&gt;
+    &lt;artifactId&gt;totp-lib&lt;/artifactId&gt;
+    &lt;version&gt;1.0.3&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+            <p style="color: var(--text-muted); margin: 1rem 0 0.5rem;">Gradle</p>
+            <pre><code>implementation("io.github.pratiyush:totp-lib:1.0.3")</code></pre>
+        </div>
+
+        <div class="card">
+            <h2>Quick Start</h2>
+<pre><code>import io.github.pratiyush.totp.*;
+
+// Generate a secret
+String secret = SecretGenerator.generate(Algorithm.SHA256);
+
+// Create TOTP instance
+TOTP totp = TOTP.defaultInstance();
+
+// Generate a code
+String code = totp.generate(secret);
+
+// Verify user input
+boolean valid = totp.verify(secret, userCode);</code></pre>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <h3>Constant-Time Verification</h3>
+                <p>All comparisons use constant-time algorithms to prevent timing attacks.</p>
+            </div>
+            <div class="feature">
+                <h3>Replay Attack Prevention</h3>
+                <p>Built-in ReplayGuard prevents the same code from being used twice.</p>
+            </div>
+            <div class="feature">
+                <h3>Zero Dependencies</h3>
+                <p>Core TOTP requires no external libraries. QR code and logging are optional.</p>
+            </div>
+            <div class="feature">
+                <h3>RFC 6238 Compliant</h3>
+                <p>Full compliance with TOTP (RFC 6238) and HOTP (RFC 4226) standards.</p>
+            </div>
+            <div class="feature">
+                <h3>QR Code Generation</h3>
+                <p>Generate QR codes for Google Authenticator, Microsoft Authenticator, and others.</p>
+            </div>
+            <div class="feature">
+                <h3>Secure Memory</h3>
+                <p>SecureBytes wrapper automatically clears secrets from memory after use.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Algorithm Support</h2>
+            <table style="width:100%; border-collapse: collapse;">
+                <tr style="border-bottom: 1px solid var(--border);">
+                    <th style="text-align:left; padding: 0.5rem;">Algorithm</th>
+                    <th style="text-align:left; padding: 0.5rem;">Key Size</th>
+                    <th style="text-align:left; padding: 0.5rem;">Use Case</th>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border);">
+                    <td style="padding: 0.5rem;">SHA-1</td>
+                    <td style="padding: 0.5rem;">20 bytes</td>
+                    <td style="padding: 0.5rem;">Legacy compatibility</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border);">
+                    <td style="padding: 0.5rem;"><strong>SHA-256</strong></td>
+                    <td style="padding: 0.5rem;">32 bytes</td>
+                    <td style="padding: 0.5rem; color: var(--green);">Recommended</td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.5rem;">SHA-512</td>
+                    <td style="padding: 0.5rem;">64 bytes</td>
+                    <td style="padding: 0.5rem;">Maximum security</td>
+                </tr>
+            </table>
+        </div>
+
+        <footer>
+            <p>MIT License &middot; Created by <a href="https://github.com/Pratiyush">Pratiyush Kumar Singh</a></p>
+            <p style="margin-top: 0.5rem;">
+                <a href="https://github.com/Pratiyush/totp-impl">Source</a> &middot;
+                <a href="https://github.com/Pratiyush/totp-impl/issues">Issues</a> &middot;
+                <a href="https://github.com/Pratiyush/totp-impl/blob/master/CHANGELOG.md">Changelog</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -8,6 +8,7 @@
     <meta name="keywords" content="TOTP, HOTP, Java, 2FA, two-factor authentication, OTP, one-time password, RFC 6238, security, authentication, Spring Boot, QR code">
     <meta name="author" content="Pratiyush Kumar Singh">
     <link rel="canonical" href="https://pratiyush.github.io/totp-impl/">
+    <meta name="color-scheme" content="light dark">
 
     <!-- Open Graph -->
     <meta property="og:title" content="totp-lib - Security-hardened TOTP for Java">
@@ -17,6 +18,19 @@
 
     <style>
         :root {
+            --bg: #ffffff;
+            --surface: #f6f8fa;
+            --border: #d0d7de;
+            --text: #1f2328;
+            --text-muted: #656d76;
+            --accent: #0969da;
+            --green: #1a7f37;
+            --code-bg: #f0f2f4;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08);
+            --tab-bg: #e8ebef;
+            --tab-active: #ffffff;
+        }
+        [data-theme="dark"] {
             --bg: #0d1117;
             --surface: #161b22;
             --border: #30363d;
@@ -25,6 +39,9 @@
             --accent: #58a6ff;
             --green: #3fb950;
             --code-bg: #1c2128;
+            --shadow: 0 1px 3px rgba(0,0,0,0.3);
+            --tab-bg: #21262d;
+            --tab-active: #161b22;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -32,49 +49,127 @@
             background: var(--bg);
             color: var(--text);
             line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
         }
-        .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .container { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+        /* Theme toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            z-index: 100;
+            transition: background 0.3s, border 0.3s;
+            box-shadow: var(--shadow);
+        }
+        .theme-toggle:hover { border-color: var(--accent); }
+
+        /* Header */
         header { text-align: center; padding: 3rem 0 2rem; }
-        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700; }
         .tagline { color: var(--text-muted); font-size: 1.2rem; margin-bottom: 1.5rem; }
-        .badges { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+        .badges { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
         .badges img { height: 22px; }
-        .links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+        .links { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
         .links a {
             color: var(--accent);
             text-decoration: none;
-            padding: 0.5rem 1rem;
+            padding: 0.45rem 0.9rem;
             border: 1px solid var(--border);
             border-radius: 6px;
-            transition: border-color 0.2s;
+            font-size: 0.9rem;
+            transition: border-color 0.2s, background 0.2s;
         }
-        .links a:hover { border-color: var(--accent); }
+        .links a:hover { border-color: var(--accent); background: var(--surface); }
+
+        /* Cards */
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
         }
-        .card h2 { font-size: 1.3rem; margin-bottom: 1rem; }
+        .card h2 { font-size: 1.25rem; margin-bottom: 1rem; }
+        .card h3 { font-size: 1rem; margin: 1.5rem 0 0.5rem; color: var(--text-muted); }
+
+        /* Code */
         pre {
             background: var(--code-bg);
+            border: 1px solid var(--border);
             border-radius: 6px;
             padding: 1rem;
             overflow-x: auto;
-            font-size: 0.9rem;
-            line-height: 1.5;
+            font-size: 0.85rem;
+            line-height: 1.6;
         }
         code { font-family: 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace; }
-        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
-        .feature { padding: 1rem; }
-        .feature h3 { font-size: 1rem; margin-bottom: 0.3rem; }
-        .feature p { color: var(--text-muted); font-size: 0.9rem; }
-        footer { text-align: center; padding: 2rem 0; color: var(--text-muted); font-size: 0.85rem; }
+        p code {
+            background: var(--code-bg);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 0; margin-bottom: 0; }
+        .tab {
+            padding: 0.4rem 1rem;
+            font-size: 0.8rem;
+            background: var(--tab-bg);
+            border: 1px solid var(--border);
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: background 0.2s, color 0.2s;
+        }
+        .tab.active { background: var(--code-bg); color: var(--text); font-weight: 600; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tabs + .tab-content pre,
+        .tab-content + .tab-content pre { border-radius: 0 6px 6px 6px; margin-top: 0; }
+
+        /* Features grid */
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .feature {
+            padding: 1.2rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        .feature-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .feature h3 { font-size: 0.95rem; margin-bottom: 0.3rem; }
+        .feature p { color: var(--text-muted); font-size: 0.85rem; }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--border); }
+        th { font-weight: 600; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
+
+        /* Footer */
+        footer { text-align: center; padding: 2.5rem 0 1rem; color: var(--text-muted); font-size: 0.85rem; }
         footer a { color: var(--accent); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle dark/light mode">
+        <span id="theme-icon">&#9790;</span>
+    </button>
+
     <div class="container">
         <header>
             <h1>totp-lib</h1>
@@ -93,85 +188,235 @@
             </div>
         </header>
 
+        <!-- Installation -->
         <div class="card">
             <h2>Installation</h2>
-            <p style="color: var(--text-muted); margin-bottom: 1rem;">Maven</p>
-            <pre><code>&lt;dependency&gt;
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab(this, 'maven')">Maven</div>
+                <div class="tab" onclick="switchTab(this, 'gradle-kt')">Gradle (Kotlin)</div>
+                <div class="tab" onclick="switchTab(this, 'gradle-gr')">Gradle (Groovy)</div>
+            </div>
+            <div class="tab-content active" id="maven">
+<pre><code>&lt;dependency&gt;
     &lt;groupId&gt;io.github.pratiyush&lt;/groupId&gt;
     &lt;artifactId&gt;totp-lib&lt;/artifactId&gt;
     &lt;version&gt;1.0.3&lt;/version&gt;
 &lt;/dependency&gt;</code></pre>
-            <p style="color: var(--text-muted); margin: 1rem 0 0.5rem;">Gradle</p>
-            <pre><code>implementation("io.github.pratiyush:totp-lib:1.0.3")</code></pre>
+            </div>
+            <div class="tab-content" id="gradle-kt">
+<pre><code>implementation("io.github.pratiyush:totp-lib:1.0.3")</code></pre>
+            </div>
+            <div class="tab-content" id="gradle-gr">
+<pre><code>implementation 'io.github.pratiyush:totp-lib:1.0.3'</code></pre>
+            </div>
         </div>
 
+        <!-- Quick Start -->
         <div class="card">
             <h2>Quick Start</h2>
 <pre><code>import io.github.pratiyush.totp.*;
 
-// Generate a secret
+// 1. Generate a secret for a new user
 String secret = SecretGenerator.generate(Algorithm.SHA256);
 
-// Create TOTP instance
+// 2. Create TOTP instance
 TOTP totp = TOTP.defaultInstance();
 
-// Generate a code
+// 3. Generate a code
 String code = totp.generate(secret);
 
-// Verify user input
+// 4. Verify user input
 boolean valid = totp.verify(secret, userCode);</code></pre>
         </div>
 
+        <!-- Replay Protection -->
+        <div class="card">
+            <h2>Replay Attack Prevention</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">Prevent the same TOTP code from being used twice within its validity window.</p>
+<pre><code>import io.github.pratiyush.totp.TOTP;
+import java.time.Duration;
+
+// Create TOTP with replay protection (2-minute window)
+TOTP totp = TOTP.builder()
+    .withReplayProtection(Duration.ofMinutes(2))
+    .build();
+
+// Verify with user ID for per-user tracking
+boolean valid = totp.verify(secret, code, userId);
+// Same code + same userId = rejected on second attempt</code></pre>
+        </div>
+
+        <!-- QR Code -->
+        <div class="card">
+            <h2>QR Code for Authenticator Apps</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">Generate QR codes compatible with Google Authenticator, Microsoft Authenticator, Authy, and others.</p>
+<pre><code>import io.github.pratiyush.totp.QRCodeGenerator;
+import java.nio.file.Path;
+
+// Save QR code as PNG file
+QRCodeGenerator.saveToFile(
+    secret, "user@example.com", "MyApp",
+    Path.of("qr.png"), 250
+);
+
+// Or get as Base64 for embedding in HTML
+String base64 = QRCodeGenerator.generateBase64(
+    secret, "user@example.com", "MyApp", 250);
+
+// Or get a data URI ready for &lt;img src="..."&gt;
+String dataUri = QRCodeGenerator.generateDataUri(
+    secret, "user@example.com", "MyApp", 250);
+
+// Build otpauth:// URI manually
+String uri = QRCodeGenerator.buildOtpauthUri(
+    secret, "user@example.com", "MyApp",
+    Algorithm.SHA256, 6, 30);</code></pre>
+        </div>
+
+        <!-- Custom Configuration -->
+        <div class="card">
+            <h2>Custom Configuration</h2>
+<pre><code>// Full custom config
+TOTPConfig config = TOTPConfig.builder()
+    .algorithm(Algorithm.SHA256)  // SHA1, SHA256, SHA512
+    .digits(8)                    // 6-8 digits
+    .periodSeconds(30)            // 15-120 seconds
+    .allowedDrift(1)              // time window tolerance
+    .build();
+
+TOTP totp = TOTP.builder()
+    .config(config)
+    .build();</code></pre>
+
+            <h3>Preset Configurations</h3>
+<pre><code>// Google Authenticator compatible (SHA-1, 6 digits, 30s)
+TOTPConfig.defaultConfig();
+
+// Recommended for new apps (SHA-256, 6 digits, 30s)
+TOTPConfig.sha256Config();
+
+// Maximum security (SHA-512, 8 digits, 30s)
+TOTPConfig.highSecurityConfig();</code></pre>
+        </div>
+
+        <!-- Secure Memory -->
+        <div class="card">
+            <h2>Secure Memory Handling</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">Secrets are automatically cleared from memory when no longer needed.</p>
+<pre><code>// SecureBytes implements AutoCloseable
+try (SecureBytes secret = SecureBytes.wrap(rawSecretBytes)) {
+    boolean valid = engine.verify(secret.getBytes(), code);
+} // secret bytes are zeroed out here automatically
+
+// Never log or serialize secrets
+// SecureBytes.toString() returns "[REDACTED]"</code></pre>
+        </div>
+
+        <!-- Spring Boot Integration -->
+        <div class="card">
+            <h2>Spring Boot Integration Example</h2>
+<pre><code>@Service
+public class TwoFactorAuthService {
+
+    private final TOTP totp = TOTP.builder()
+        .algorithm(Algorithm.SHA256)
+        .withReplayProtection(Duration.ofMinutes(2))
+        .build();
+
+    public String enrollUser(String userId) {
+        String secret = SecretGenerator.generate(Algorithm.SHA256);
+        // Store secret encrypted in database
+        userRepository.saveTotpSecret(userId, encrypt(secret));
+        return secret;
+    }
+
+    public boolean verifyCode(String userId, String code) {
+        String secret = decrypt(userRepository.getTotpSecret(userId));
+        return totp.verify(secret, code, userId);
+    }
+
+    public String getQrCodeDataUri(String userId, String email) {
+        String secret = decrypt(userRepository.getTotpSecret(userId));
+        return QRCodeGenerator.generateDataUri(
+            secret, email, "MyApp", 250);
+    }
+}</code></pre>
+        </div>
+
+        <!-- Features -->
         <div class="features">
             <div class="feature">
+                <div class="feature-icon">&#128274;</div>
                 <h3>Constant-Time Verification</h3>
                 <p>All comparisons use constant-time algorithms to prevent timing attacks.</p>
             </div>
             <div class="feature">
+                <div class="feature-icon">&#128737;</div>
                 <h3>Replay Attack Prevention</h3>
                 <p>Built-in ReplayGuard prevents the same code from being used twice.</p>
             </div>
             <div class="feature">
+                <div class="feature-icon">&#128230;</div>
                 <h3>Zero Dependencies</h3>
-                <p>Core TOTP requires no external libraries. QR code and logging are optional.</p>
+                <p>Core TOTP requires no external libraries. QR and logging are optional.</p>
             </div>
             <div class="feature">
+                <div class="feature-icon">&#9989;</div>
                 <h3>RFC 6238 Compliant</h3>
                 <p>Full compliance with TOTP (RFC 6238) and HOTP (RFC 4226) standards.</p>
             </div>
             <div class="feature">
+                <div class="feature-icon">&#128241;</div>
                 <h3>QR Code Generation</h3>
-                <p>Generate QR codes for Google Authenticator, Microsoft Authenticator, and others.</p>
+                <p>Works with Google Authenticator, Microsoft Authenticator, Authy, and more.</p>
             </div>
             <div class="feature">
+                <div class="feature-icon">&#128170;</div>
                 <h3>Secure Memory</h3>
                 <p>SecureBytes wrapper automatically clears secrets from memory after use.</p>
             </div>
         </div>
 
+        <!-- API Reference -->
+        <div class="card">
+            <h2>API Reference</h2>
+
+            <h3>TOTP</h3>
+            <table>
+                <tr><th>Method</th><th>Description</th></tr>
+                <tr><td><code>generate(secret)</code></td><td>Generate code for current time</td></tr>
+                <tr><td><code>generateAt(secret, instant)</code></td><td>Generate code for specific time</td></tr>
+                <tr><td><code>verify(secret, code)</code></td><td>Verify a code</td></tr>
+                <tr><td><code>verify(secret, code, userId)</code></td><td>Verify with replay protection</td></tr>
+                <tr><td><code>getSecondsRemaining()</code></td><td>Seconds until current code expires</td></tr>
+            </table>
+
+            <h3>SecretGenerator</h3>
+            <table>
+                <tr><th>Method</th><th>Description</th></tr>
+                <tr><td><code>generate()</code></td><td>Generate 160-bit secret</td></tr>
+                <tr><td><code>generate(algorithm)</code></td><td>Generate algorithm-appropriate secret</td></tr>
+                <tr><td><code>isValid(secret)</code></td><td>Validate a Base32 secret</td></tr>
+            </table>
+
+            <h3>QRCodeGenerator</h3>
+            <table>
+                <tr><th>Method</th><th>Description</th></tr>
+                <tr><td><code>generateBase64(...)</code></td><td>Generate Base64 PNG</td></tr>
+                <tr><td><code>generateDataUri(...)</code></td><td>Generate data URI for HTML</td></tr>
+                <tr><td><code>saveToFile(...)</code></td><td>Save to file</td></tr>
+                <tr><td><code>buildOtpauthUri(...)</code></td><td>Build otpauth:// URI</td></tr>
+            </table>
+        </div>
+
+        <!-- Algorithm Support -->
         <div class="card">
             <h2>Algorithm Support</h2>
-            <table style="width:100%; border-collapse: collapse;">
-                <tr style="border-bottom: 1px solid var(--border);">
-                    <th style="text-align:left; padding: 0.5rem;">Algorithm</th>
-                    <th style="text-align:left; padding: 0.5rem;">Key Size</th>
-                    <th style="text-align:left; padding: 0.5rem;">Use Case</th>
-                </tr>
-                <tr style="border-bottom: 1px solid var(--border);">
-                    <td style="padding: 0.5rem;">SHA-1</td>
-                    <td style="padding: 0.5rem;">20 bytes</td>
-                    <td style="padding: 0.5rem;">Legacy compatibility</td>
-                </tr>
-                <tr style="border-bottom: 1px solid var(--border);">
-                    <td style="padding: 0.5rem;"><strong>SHA-256</strong></td>
-                    <td style="padding: 0.5rem;">32 bytes</td>
-                    <td style="padding: 0.5rem; color: var(--green);">Recommended</td>
-                </tr>
-                <tr>
-                    <td style="padding: 0.5rem;">SHA-512</td>
-                    <td style="padding: 0.5rem;">64 bytes</td>
-                    <td style="padding: 0.5rem;">Maximum security</td>
-                </tr>
+            <table>
+                <tr><th>Algorithm</th><th>Key Size</th><th>Use Case</th></tr>
+                <tr><td>SHA-1</td><td>20 bytes</td><td>Legacy compatibility</td></tr>
+                <tr><td><strong>SHA-256</strong></td><td>32 bytes</td><td style="color: var(--green);">Recommended</td></tr>
+                <tr><td>SHA-512</td><td>64 bytes</td><td>Maximum security</td></tr>
             </table>
         </div>
 
@@ -180,9 +425,40 @@ boolean valid = totp.verify(secret, userCode);</code></pre>
             <p style="margin-top: 0.5rem;">
                 <a href="https://github.com/Pratiyush/totp-impl">Source</a> &middot;
                 <a href="https://github.com/Pratiyush/totp-impl/issues">Issues</a> &middot;
-                <a href="https://github.com/Pratiyush/totp-impl/blob/master/CHANGELOG.md">Changelog</a>
+                <a href="https://github.com/Pratiyush/totp-impl/blob/master/CHANGELOG.md">Changelog</a> &middot;
+                <a href="https://github.com/Pratiyush/totp-impl/blob/master/SECURITY.md">Security</a>
             </p>
         </footer>
     </div>
+
+    <script>
+        function getPreferredTheme() {
+            const stored = localStorage.getItem('theme');
+            if (stored) return stored;
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            document.getElementById('theme-icon').textContent = theme === 'dark' ? '\u2600' : '\u263E';
+            localStorage.setItem('theme', theme);
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            applyTheme(current === 'dark' ? 'light' : 'dark');
+        }
+
+        function switchTab(tabEl, contentId) {
+            const card = tabEl.closest('.card');
+            card.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            card.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            tabEl.classList.add('active');
+            card.querySelector('#' + contentId).classList.add('active');
+        }
+
+        // Apply theme on load
+        applyTheme(getPreferredTheme());
+    </script>
 </body>
 </html>

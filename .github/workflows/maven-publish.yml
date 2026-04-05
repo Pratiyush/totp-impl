@@ -106,17 +106,21 @@ jobs:
           git config user.name "Pratiyush"
           git config user.email "pratiyush1@gmail.com"
 
-      - name: Create release branch and tag (PR merge only)
-        if: github.event_name == 'pull_request'
+      - name: Push version bump to master
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           git add pom.xml
           git commit -m "chore(release): bump to $VERSION"
+          git push origin HEAD:master
+
+      - name: Create release branch and tag (PR merge only)
+        if: github.event_name == 'pull_request'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
           git branch "release/$VERSION"
           git push origin "release/$VERSION"
           git tag "v$VERSION"
           git push origin "v$VERSION"
-          git push origin HEAD
 
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1

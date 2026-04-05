@@ -7,7 +7,7 @@
 
     <groupId>io.github.pratiyush</groupId>
     <artifactId>totp-lib</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <packaging>jar</packaging>
 
     <name>TOTP Lib - Java Two-Factor Authentication (2FA) Library</name>

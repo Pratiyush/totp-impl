@@ -1,10 +1,23 @@
-# Production-Ready TOTP Library
+<div align="center">
 
-[![Java](https://img.shields.io/badge/Java-17+-blue.svg)](https://openjdk.org/)
-[![RFC](https://img.shields.io/badge/RFC-6238-green.svg)](https://datatracker.ietf.org/doc/html/rfc6238)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+<!-- Logo placeholder -->
+<img src=".github/assets/logo.png" alt="totp-lib logo" width="200">
 
-A **security-hardened, RFC 6238 compliant** Time-based One-Time Password (TOTP) library for Java.
+# totp-lib
+
+**Security-hardened TOTP for Java**
+
+[![CI](https://img.shields.io/github/actions/workflow/status/Pratiyush/totp-impl/ci.yml?branch=master&style=flat-square&label=CI)](https://github.com/Pratiyush/totp-impl/actions/workflows/ci.yml)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.pratiyush/totp-lib?style=flat-square)](https://central.sonatype.com/artifact/io.github.pratiyush/totp-lib)
+[![Java](https://img.shields.io/badge/Java-21+-blue.svg?style=flat-square)](https://openjdk.org/)
+[![RFC](https://img.shields.io/badge/RFC-6238-green.svg?style=flat-square)](https://datatracker.ietf.org/doc/html/rfc6238)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](CONTRIBUTING.md)
+
+Enterprise-grade, RFC 6238 compliant Time-based One-Time Password (TOTP) library for Java.
+Zero required dependencies. Constant-time verification. Replay attack prevention.
+
+</div>
 
 ## Features
 
@@ -23,7 +36,7 @@ Add to your `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>com.pratiyush</groupId>
+    <groupId>io.github.pratiyush</groupId>
     <artifactId>totp-lib</artifactId>
     <version>1.0.1</version>
 </dependency>
@@ -228,7 +241,7 @@ mvn package -Pshade
 
 ## Requirements
 
-- Java 17 or higher
+- Java 21 or higher
 - Maven 3.6+ (for building)
 
 ## Dependencies
@@ -252,6 +265,8 @@ Compatible with tools like NullAway, Error Prone, and IntelliJ IDEA.
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines and coding standards.
 
+This project follows the [Contributor Covenant](CODE_OF_CONDUCT.md) code of conduct.
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
@@ -264,53 +279,3 @@ MIT License - see [LICENSE](LICENSE) for details.
 - [Google Authenticator Key URI Format](https://github.com/google/google-authenticator/wiki/Key-Uri-Format)
 - [jSpecify](https://jspecify.dev/)
 
----
-
-# Markdown Files Consolidation Summary
-
-## Overview
-
-The markdown files in the repository have been consolidated to reduce redundancy while maintaining all essential information. Below is the new structure:
-
-## Files and Their Purpose
-
-### Core Documentation (3 files)
-
-| File | Purpose |
-|------|---------|
-| **README.md** | Project overview, quick start, and release procedures |
-| **CONTRIBUTING.md** | Development guidelines, coding standards, and commit message format |
-| **CHANGELOG.md** | Version history and release notes |
-
-## Navigation Structure
-
-```
-README.md (Start here)
-├── CONTRIBUTING.md (Development & commits)
-├── CHANGELOG.md (Version history)
-```
-
-## Benefits of Consolidation
-
-✅ **Reduced Redundancy:** No duplicate information across files
-✅ **Single Source of Truth:** Main docs (README, CONTRIBUTING) are authoritative
-✅ **Better Organization:** Clear navigation and cross-references
-✅ **Easier Maintenance:** Updates in one place propagate to all references
-✅ **Cleaner Repository:** Only 3 focused files instead of scattered information
-
-## Quick Reference Guide
-
-### For developers starting out:
-1. Read **README.md** for overview
-2. Check **CONTRIBUTING.md** for coding standards and commit format
-
-### For maintainers preparing a release:
-1. See **README.md** "Release & Deployment" section
-2. Refer to **pom.xml** for Maven configuration
-
-### For understanding commits:
-1. See **CONTRIBUTING.md** "Commit Message Standard" section
-
-## Migration Complete ✓
-
-All markdown files have been consolidated with cross-references in place. No information has been lost—everything is now organized hierarchically with the main documentation files (README, CONTRIBUTING, CHANGELOG) as authoritative sources.

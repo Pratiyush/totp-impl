@@ -7,7 +7,7 @@ Thank you for your interest in contributing! We welcome bug reports, feature req
 To maintain the high quality and security of this library, please adhere to the following standards:
 
 ### General
-- **Java Version**: Code must match Java 17 baseline.
+- **Java Version**: Code must match Java 21 baseline.
 - **Null Safety**: Use jSpecify annotations.
     - Packages are `@NullMarked` by default.
     - Explicitly annotate nullable parameters/returns with `@Nullable`.

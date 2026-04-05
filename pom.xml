@@ -10,10 +10,11 @@
     <version>1.0.2</version>
     <packaging>jar</packaging>
 
-    <name>Java TOTP Implementation</name>
+    <name>TOTP Lib - Java Two-Factor Authentication (2FA) Library</name>
     <description>
-        Enterprise-grade, RFC 6238 compliant Time-based One-Time Password (TOTP) library.
-        Features constant-time verification, replay attack prevention, and zero required dependencies.
+        Java TOTP/HOTP library for two-factor authentication (2FA). RFC 6238 compliant with
+        constant-time verification, replay attack prevention, QR code generation, and zero
+        required dependencies. Drop-in 2FA for Spring Boot and Java applications.
     </description>
     <url>https://github.com/Pratiyush/totp-impl</url>
     <inceptionYear>2026</inceptionYear>

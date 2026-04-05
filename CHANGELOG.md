@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2026-04-05
+
+### Fixed
+- CI/CD pipeline: split into `ci.yml` (build+test) and `maven-publish.yml` (tag-triggered deploy)
+- Removed duplicate GPG plugin from pom.xml (was defined in both main build and release profile)
+- README Maven snippet: corrected groupId from `com.pratiyush` to `io.github.pratiyush`
+- Java version references: 17 → 21 across README and CONTRIBUTING.md
+- Opt into Node.js 24 for GitHub Actions (fixes deprecation warning)
+
+### Added
+- PR template with checklist
+- Issue templates (bug report, feature request)
+- CODE_OF_CONDUCT.md (Contributor Covenant v2.1)
+- CI workflow for build+test on every push/PR
+- Centered README header with tagline and flat-square badges
+
+### Removed
+- Leftover "Markdown Consolidation Summary" section from README
+
 ## [1.0.1] - 2026-02-15
 
 ### Security

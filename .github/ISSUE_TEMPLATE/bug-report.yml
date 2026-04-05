@@ -1,0 +1,38 @@
+name: Bug Report
+description: Report a bug in the TOTP library
+labels: ["bug"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Library version
+      placeholder: "1.0.1"
+    validations:
+      required: true
+  - type: input
+    id: java-version
+    attributes:
+      label: Java version
+      placeholder: "21"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug description
+      placeholder: "What happened? What did you expect?"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Code snippet that reproduces the issue
+      render: java
+    validations:
+      required: true
+  - type: textarea
+    id: stacktrace
+    attributes:
+      label: Stack trace (if applicable)
+      render: text

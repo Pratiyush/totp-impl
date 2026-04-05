@@ -1,8 +1,9 @@
-name: Maven Publish (Approach 3 - fixed GPG)
+name: Maven Publish
 
 on:
   push:
-    branches: [ main, master ]
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
@@ -24,7 +25,7 @@ jobs:
           java-version: 21
 
       - name: Cache Maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -34,30 +35,20 @@ jobs:
       - name: Install GPG + pinentry
         run: |
           sudo apt-get update -y
-          # Install gpg and a pinentry implementation
           sudo apt-get install -y --no-install-recommends gnupg2 gnupg-agent pinentry-curses
-          gpg --version
 
-      - name: Configure GPG agent for loopback (non-interactive CI)
+      - name: Configure GPG agent for loopback
         run: |
           mkdir -p ~/.gnupg
           chmod 700 ~/.gnupg
-
-          # Enable loopback pinentry to allow passphrase via --pinentry-mode loopback
           echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
-
-          # pinentry-program ensures pinentry binary path (adjust if different)
           if [ -x "/usr/bin/pinentry-curses" ]; then
             echo "pinentry-program /usr/bin/pinentry-curses" >> ~/.gnupg/gpg-agent.conf
           elif [ -x "/usr/bin/pinentry" ]; then
             echo "pinentry-program /usr/bin/pinentry" >> ~/.gnupg/gpg-agent.conf
           fi
-
-          # Make sure gpg.conf also includes loopback mode setting for some gpg versions
           echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
           chmod 600 ~/.gnupg/gpg-agent.conf ~/.gnupg/gpg.conf
-
-          # Restart gpg-agent so changes take effect
           gpgconf --homedir "$HOME/.gnupg" --kill gpg-agent || true
           sleep 1
           gpgconf --homedir "$HOME/.gnupg" --launch gpg-agent || true
@@ -67,58 +58,36 @@ jobs:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
         run: |
           set -euo pipefail
-          # Import private key (expects ASCII-armored key in the secret)
           printf '%s\n' "$GPG_PRIVATE_KEY" | gpg --batch --import
-          # Verify
           gpg --list-secret-keys --keyid-format LONG
 
-      - name: Debug GPG (key ID shown)
-        run: |
-          echo "Secret keys (long ids):"
-          gpg --list-secret-keys --keyid-format LONG || true
-          echo "Detected key fingerprint (colon format):"
-          gpg --list-secret-keys --with-colons | awk -F: '/^sec/ {print $5}' || true
-
-      - name: Calculate version
+      - name: Extract version from tag
         id: version
         run: |
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          VERSION="${LATEST_TAG#v}"
-          if [ "$VERSION" = "0.0.0" ]; then
-            NEXT_VERSION="1.0.0-SNAPSHOT"
-          else
-            IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
-            PATCH=$((PATCH + 1))
-            NEXT_VERSION="$MAJOR.$MINOR.$PATCH-SNAPSHOT"
-          fi
-          echo "version=$NEXT_VERSION" >> "$GITHUB_OUTPUT"
-          echo "Next version: $NEXT_VERSION"
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Publishing version: $VERSION"
 
-      - name: Build, sign and deploy
+      - name: Set version in pom.xml
+        run: |
+          mvn -B versions:set -DnewVersion=${{ steps.version.outputs.version }} -DgenerateBackupPoms=false
+
+      - name: Build, sign, and deploy
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_TOKEN: ${{ secrets.SONATYPE_TOKEN }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
         run: |
-          # Use loopback pinentry via maven-gpg-plugin gpgArguments defined in pom.xml
           mvn -B -e -DskipTests clean deploy \
             -s .github/maven/settings.xml \
-            -P release \
-            -Drevision=${{ steps.version.outputs.version }}
+            -P release
 
-      - name: Create Git tag (only non-SNAPSHOT)
-        if: "!contains(steps.version.outputs.version, 'SNAPSHOT')"
-        run: |
-          git tag "v${{ steps.version.outputs.version }}"
-          git push origin "v${{ steps.version.outputs.version }}"
-
-      - name: Create GitHub Release (only non-SNAPSHOT)
-        if: "!contains(steps.version.outputs.version, 'SNAPSHOT')"
+      - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
           tag: "v${{ steps.version.outputs.version }}"
           name: "Release v${{ steps.version.outputs.version }}"
-          body: "Automated release v${{ steps.version.outputs.version }}"
+          body: "Release v${{ steps.version.outputs.version }}"
           draft: false
           prerelease: false
